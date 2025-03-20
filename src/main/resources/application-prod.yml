@@ -1,0 +1,2 @@
+cors:
+  allowed-origins: "https://myfrontend-livechat.com" #Pending to define
