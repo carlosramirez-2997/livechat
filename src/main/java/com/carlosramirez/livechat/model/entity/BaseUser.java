@@ -4,15 +4,14 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
-@Entity
-@Table(name = "users")
+
 @Data
-public class User {
+@MappedSuperclass
+public abstract class BaseUser implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +37,5 @@ public class User {
     @Column(nullable = false)
     private String role;
 
-    @ManyToMany(mappedBy = "participants")
-    private Set<ChatRoom> chatRooms = new HashSet<>();
+    public abstract boolean canSendMessages();
 }

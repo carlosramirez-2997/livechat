@@ -1,3 +1,11 @@
 spring:
   profiles:
     active: dev
+  flyway:
+    baseline-on-migrate: true
+
+features:
+  rooms:
+    - YuGiOh!
+    - Pokemon
+    - World of Warcraft

@@ -1,23 +1,39 @@
 package com.carlosramirez.livechat.utilities;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.Keys;
+import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
+
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long EXPIRATION_TIME = 60 * 5; // 5 Minutes
+    @Autowired
+    ObjectMapper objectMapper;
 
-    public String generateToken(String username) {
+    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours
+
+    @SneakyThrows
+    public String generateToken(String email, String username, List<GrantedAuthority> roles) {
+        String rolesJson = objectMapper.writeValueAsString(roles.stream().map(GrantedAuthority::getAuthority).toList());
+
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(email)
+                .claim("username", username)
+                .claim("roles", rolesJson)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(key)
@@ -28,16 +44,17 @@ public class JwtUtil {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
+    public List<SimpleGrantedAuthority> extractRoleFromToken(String token) {
+        String rolesJson = extractClaim(token, claims -> claims.get("roles", String.class));
 
-    public boolean validateToken(String token, String username) {
-        return (username.equals(extractUsername(token)) && !isTokenExpired(token));
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        try {
+            List<String> roles = objectMapper.readValue(rolesJson, List.class);
+            return roles.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract roles from token", e);
+        }
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {

@@ -1,13 +1,12 @@
-package com.carlosramirez.livechat.services;
+package com.carlosramirez.livechat.services.user.impl;
 
 import com.carlosramirez.livechat.data.UserRepository;
-import com.carlosramirez.livechat.model.entity.User;
+import com.carlosramirez.livechat.model.entity.CustomUserDetails;
+import com.carlosramirez.livechat.model.entity.RegisteredUser;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import static org.springframework.security.core.userdetails.User.withUsername;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -20,12 +19,9 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+         RegisteredUser user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(email));
 
-        return withUsername(user.getEmail())
-            .password(user.getPassword())
-            .roles(user.getRole())
-            .build();
+         return new CustomUserDetails(user);
     }
 }
