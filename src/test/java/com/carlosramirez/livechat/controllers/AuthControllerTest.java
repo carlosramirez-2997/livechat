@@ -1,9 +1,10 @@
 package com.carlosramirez.livechat.controllers;
 
+import com.carlosramirez.livechat.LiveChatApplicationTest;
 import com.carlosramirez.livechat.controller.AuthController;
 import com.carlosramirez.livechat.controller.ExceptionHandlerController;
 import com.carlosramirez.livechat.services.authentication.AuthService;
-import com.carlosramirez.livechat.utilities.JwtUtil;
+import com.carlosramirez.livechat.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,16 +19,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-public class AuthControllerTest {
+public class AuthControllerTest extends LiveChatApplicationTest {
 
     private MockMvc mockMvc;
 
@@ -41,11 +39,7 @@ public class AuthControllerTest {
     private AuthService authService;
 
     @Mock
-    private JwtUtil jwtUtil;
-
-    private String readJsonFile(String filePath) throws Exception {
-        return new String(Files.readAllBytes(Paths.get(filePath)));
-    }
+    private JwtUtils jwtUtils;
 
     @BeforeEach
     void setUp() {
@@ -76,7 +70,5 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
                 .andExpect(status().isUnauthorized());
-
-
     }
 }

@@ -1,11 +1,9 @@
 package com.carlosramirez.livechat.services.authentication.impl;
 
-import com.carlosramirez.livechat.model.dto.rest.UserDTO;
-import com.carlosramirez.livechat.model.entity.BaseUser;
+import com.carlosramirez.livechat.model.dto.rest.AuthUserDTO;
 import com.carlosramirez.livechat.model.entity.CustomUserDetails;
-import com.carlosramirez.livechat.model.entity.GuestUser;
 import com.carlosramirez.livechat.services.authentication.AuthService;
-import com.carlosramirez.livechat.utilities.JwtUtil;
+import com.carlosramirez.livechat.utils.JwtUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,14 +22,14 @@ import static org.springframework.http.HttpStatus.OK;
 public class JwtAuthenticationService implements AuthService {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
+    private final JwtUtils jwtUtils;
 
-    public JwtAuthenticationService(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    public JwtAuthenticationService(AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
         this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
+        this.jwtUtils = jwtUtils;
     }
 
-    public ResponseEntity<Map<String, Object>> authenticate(UserDTO user) {
+    public ResponseEntity<Map<String, Object>> authenticate(AuthUserDTO user) {
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
 
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
@@ -40,7 +38,7 @@ public class JwtAuthenticationService implements AuthService {
         String username = userDetails.getUsername();
         List<GrantedAuthority> roles = (List<GrantedAuthority>) userDetails.getAuthorities();
 
-        String token = jwtUtil.generateToken(email, username, roles);
+        String token = jwtUtils.generateToken(email, username, roles);
 
         return ResponseEntity.status(OK).body(Map.of("token", token));
     }
@@ -49,11 +47,7 @@ public class JwtAuthenticationService implements AuthService {
     public ResponseEntity<?> getGuestAuthentication() {
         String guestUsername = "Guest_" + UUID.randomUUID().toString().substring(0, 5);
 
-        BaseUser guest = new GuestUser();
-        guest.setUsername(guestUsername);
-        guest.setRole("GUEST");
-
-        String token = jwtUtil.generateToken(null, guest.getUsername(), List.of(new SimpleGrantedAuthority("GUEST")));
+        String token = jwtUtils.generateToken(null, guestUsername, List.of(new SimpleGrantedAuthority("ROLE_GUEST")));
 
         return ResponseEntity.status(OK).body(Map.of("token", token));
     }

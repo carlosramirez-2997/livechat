@@ -1,6 +1,6 @@
 package com.carlosramirez.livechat.config;
 
-import com.carlosramirez.livechat.utilities.JwtUtil;
+import com.carlosramirez.livechat.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,10 +16,10 @@ import java.util.List;
 
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
+    private final JwtUtils jwtUtils;
 
-    public JwtAuthFilter(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
+    public JwtAuthFilter(JwtUtils jwtUtils) {
+        this.jwtUtils = jwtUtils;
     }
 
     @Override
@@ -31,15 +31,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
 
-            String username = jwtUtil.extractUsername(token);
-            List<SimpleGrantedAuthority> roles = jwtUtil.extractRoleFromToken(token);
+            if (jwtUtils.validateToken(token)) {
+                String username = jwtUtils.extractUsername(token);
+                List<SimpleGrantedAuthority> roles = jwtUtils.extractRoleFromToken(token);
 
-            if (!roles.isEmpty()) {
                 User user = new User(username, "", roles);
-
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-
+                        new UsernamePasswordAuthenticationToken(user, null, roles);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }

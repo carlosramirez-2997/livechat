@@ -36,10 +36,13 @@ dependencies {
 	implementation 'org.apache.commons:commons-lang3:3.17.0'
 	implementation 'org.flywaydb:flyway-database-postgresql'
 	implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
+	implementation 'org.mapstruct:mapstruct:1.6.3'
 
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+	runtimeOnly 'org.postgresql:postgresql'
 
 	testImplementation 'com.h2database:h2:2.2.220'
 	testImplementation 'org.springframework.security:spring-security-test'

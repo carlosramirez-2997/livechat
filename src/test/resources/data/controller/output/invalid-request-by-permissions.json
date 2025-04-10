@@ -1,0 +1,8 @@
+{
+  "notification": {
+    "status": "Forbidden",
+    "message": [
+      "Access denied. You do not have the required permissions."
+    ]
+  }
+}

@@ -1,18 +1,10 @@
 package com.carlosramirez.livechat.controller;
 
-import com.carlosramirez.livechat.model.dto.rest.UserDTO;
+import com.carlosramirez.livechat.model.dto.rest.AuthUserDTO;
 import com.carlosramirez.livechat.services.authentication.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
-
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -25,7 +17,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody UserDTO user) {
+    public ResponseEntity<?> login(@Valid @RequestBody AuthUserDTO user) {
         return authService.authenticate(user);
     }
 
@@ -33,4 +25,5 @@ public class AuthController {
     public ResponseEntity<?> authenticateGuest() {
         return authService.getGuestAuthentication();
     }
+
 }

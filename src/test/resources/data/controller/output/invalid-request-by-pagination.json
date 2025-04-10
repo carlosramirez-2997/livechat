@@ -1,0 +1,8 @@
+{
+  "notification": {
+    "status": "Bad Request",
+    "message": [
+      "size: Size must be at most 100"
+    ]
+  }
+}

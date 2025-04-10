@@ -1,7 +1,7 @@
 package com.carlosramirez.livechat.services;
 
 import com.carlosramirez.livechat.data.UserRepository;
-import com.carlosramirez.livechat.model.dto.rest.UserDTO;
+import com.carlosramirez.livechat.model.dto.rest.AuthUserDTO;
 import com.carlosramirez.livechat.services.authentication.AuthService;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Assertions;
@@ -37,31 +37,31 @@ public class AuthServiceTests {
 
     @Test
     public void testLogin_whenUserCredentialsAreWrong_shouldReturn400() {
-        UserDTO userDTO = getInvalidMockData();
+        AuthUserDTO authUserDTO = getInvalidMockData();
 
         assertThrows(BadCredentialsException.class, () -> {
-            authService.authenticate(userDTO);
+            authService.authenticate(authUserDTO);
         });
     }
 
     @Test
     public void testLogin_whenUserCredentialsAreCorrect_thenReturn200() {
-        UserDTO userDTO = getValidMockData();
+        AuthUserDTO authUserDTO = getValidMockData();
 
-        ResponseEntity<?> response = authService.authenticate(userDTO);
+        ResponseEntity<?> response = authService.authenticate(authUserDTO);
 
         Assertions.assertSame(HttpStatus.OK, response.getStatusCode());
     }
 
-    private UserDTO getValidMockData() {
-        return UserDTO.builder()
+    private AuthUserDTO getValidMockData() {
+        return AuthUserDTO.builder()
                 .email("emma.jones@example.com")
                 .password("Password123!")
                 .build();
     }
 
-    private UserDTO getInvalidMockData() {
-        return UserDTO.builder()
+    private AuthUserDTO getInvalidMockData() {
+        return AuthUserDTO.builder()
                 .email("quentin.tiegs@example.com")
                 .password("InvalidPassword!")
                 .build();

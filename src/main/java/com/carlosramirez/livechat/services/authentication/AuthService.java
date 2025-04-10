@@ -1,10 +1,11 @@
 package com.carlosramirez.livechat.services.authentication;
 
-import com.carlosramirez.livechat.model.dto.rest.UserDTO;
+import com.carlosramirez.livechat.model.dto.rest.AuthUserDTO;
 import org.springframework.http.ResponseEntity;
 
 public interface AuthService {
-    ResponseEntity<?> authenticate(UserDTO user);
+    ResponseEntity<?> authenticate(AuthUserDTO user);
 
     ResponseEntity<?> getGuestAuthentication();
+
 }

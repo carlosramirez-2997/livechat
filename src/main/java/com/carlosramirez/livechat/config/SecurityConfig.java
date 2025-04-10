@@ -1,13 +1,14 @@
 package com.carlosramirez.livechat.config;
 
-import com.carlosramirez.livechat.services.user.impl.UserService;
-import com.carlosramirez.livechat.utilities.JwtUtil;
+import com.carlosramirez.livechat.services.user.impl.UserServiceImpl;
+import com.carlosramirez.livechat.utils.JwtUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -15,19 +16,22 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-@Profile("!test")
+@EnableMethodSecurity
 public class SecurityConfig {
 
-    private final UserService userService;
-    private final JwtUtil jwtUtil;
+    private final JwtUtils jwtUtils;
+    private final UserServiceImpl userService;
+    private final AccessDeniedHandler accessDeniedHandler;
 
-    public SecurityConfig(UserService userService, JwtUtil jwtUtil) {
+    public SecurityConfig(JwtUtils jwtUtils, UserServiceImpl userService, AccessDeniedHandler accessDeniedHandler) {
         this.userService = userService;
-        this.jwtUtil = jwtUtil;
+        this.accessDeniedHandler = accessDeniedHandler;
+        this.jwtUtils = jwtUtils;
     }
 
     @Bean
@@ -52,7 +56,8 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**", "/ws").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class) // Add JWT filter
+                .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
+                .addFilterBefore(new JwtAuthFilter(jwtUtils), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
